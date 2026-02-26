@@ -85,7 +85,7 @@ app.get("/health", (req, res) => {
 });
 
 // 3. Endpoint: Upload and Parse 3 Sheets
-app.post("/upload", upload.single("excelFile"), async (req, res) => {
+app.post("/tabular-ppkh/upload", upload.single("excelFile"), async (req, res) => {
   try {
     const workbook = xlsx.readFile(req.file.path);
     const sheetNames = workbook.SheetNames; // Reads all available sheets
@@ -108,7 +108,7 @@ app.post("/upload", upload.single("excelFile"), async (req, res) => {
 });
 
 // 4. Endpoint: Return All Data + Latest Entries
-app.get("/data", async (req, res) => {
+app.get("/tabular-ppkh/", async (req, res) => {
   try {
     const allData = await ExcelData.find().sort({ uploadedAt: -1 });
 
