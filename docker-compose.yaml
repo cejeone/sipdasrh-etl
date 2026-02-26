@@ -8,10 +8,20 @@ services:
     environment:
       - PORT=4000
       - MONGO_URI=mongodb://mongodb:27017/excelDB
+      - CONSUL_HOST=localhost
+      - SERVICE_ADDRESS=app
     depends_on:
       - mongodb
+      # - consul
     volumes:
       - ./uploads:/usr/src/app/uploads
+
+  # consul:
+  #   image: hashicorp/consul:latest
+  #   ports:
+  #     - "8500:8500"
+  #     - "8600:8600/udp"
+  #   command: "agent -dev -client=0.0.0.0"
 
   mongodb:
     image: mongo:latest

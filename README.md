@@ -1,7 +1,10 @@
-# SIPDASRH Excel Upload Service #
+# SIPDASRH Excel Upload Service
+
 Service untuk menangani proses Extraksi dan Loading data dari Excel ke dashboard PPKH
 
-## Stack ##
+## Stack
+
 - Express
-- Mongose
+- Mongoose
 - Multer
+- Consul (Service Discovery & Health Check)
