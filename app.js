@@ -5,6 +5,7 @@ const multer = require("multer");
 const xlsx = require("xlsx");
 const path = require("path");
 const fs = require("fs");
+const os = require("os");
 const Consul = require("consul");
 
 const app = express();
@@ -21,21 +22,43 @@ const consul = new Consul({
   port: CONSUL_PORT,
 });
 
+const getIPAddress = () => {
+  const interfaces = os.networkInterfaces();
+  for (const devName in interfaces) {
+    const iface = interfaces[devName];
+    for (let i = 0; i < iface.length; i++) {
+      const alias = iface[i];
+      if (
+        (alias.family === "IPv4" || alias.family === 4) &&
+        alias.address !== "127.0.0.1" &&
+        !alias.internal
+      ) {
+        return alias.address;
+      }
+    }
+  }
+  return "localhost";
+};
+
+const SERVICE_ADDRESS = process.env.SERVICE_ADDRESS || getIPAddress();
+
+
 // Consul Health Check Registration
 const registerService = async () => {
     try {
         await consul.agent.service.register({
             id: SERVICE_ID,
             name: SERVICE_NAME,
-            address: process.env.SERVICE_ADDRESS || 'localhost',
+            address: SERVICE_ADDRESS,
             port: parseInt(PORT),
             check: {
-                http: `http://${process.env.SERVICE_ADDRESS || 'localhost'}:${PORT}/health`,
+                http: `http://${SERVICE_ADDRESS}:${PORT}/health`,
                 interval: '10s',
                 timeout: '5s'
             }
         });
-        console.log(`Service ${SERVICE_ID} registered with Consul at ${CONSUL_HOST}:${CONSUL_PORT}`);
+        console.log(`Service ${SERVICE_ID} registered with Consul at ${CONSUL_HOST}:${CONSUL_PORT} using address ${SERVICE_ADDRESS}`);
+
     } catch (err) {
         console.error('Failed to register service with Consul:', err);
     }
